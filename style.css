@@ -3,3 +3,10 @@
     display: flex;
     justify-content: center;
 }
+
+body {
+    /* Primary-color : '#E84C29'; */
+    background-color: '#273346';
+    font-family: '#FFFFFF';
+    font-family: "sans serif";
+}
