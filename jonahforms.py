@@ -390,7 +390,8 @@ with entrysection:
             with st.spinner("Loading..."):
                 time.sleep(1)
                 if st.session_state['header'] == True:
-                    navbar()
+                    # navbar()
+                    showmainpage()
 
         else:
             showLogin()
