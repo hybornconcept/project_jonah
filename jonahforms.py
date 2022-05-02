@@ -6,7 +6,7 @@ import pandas as pd
 # import plotly.express as px
 # import plotly.graph_objects as go
 import time
-from streamlit_option_menu import option_menu
+# from streamlit_option_menu import option_menu
 
 st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
