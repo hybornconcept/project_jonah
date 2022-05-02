@@ -305,29 +305,29 @@ def show_database():
     st.dataframe(clean_df)
 
 
-def navbar():
-    selected = option_menu(
-        menu_title=None,
-        options=['Home', 'Database', 'Dashboard'],
-        icons=['house', 'wallet2', 'bar-chart'],
-        menu_icon="cast",
-        default_index=0,
-        orientation="horizontal",
-        styles={
-            "container": {"padding": "5!important", "background-color": "black", "width": "50%"},
-            "icon": {"color": "red", "font-size": "25px"},
-            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
-            "nav-link-selected": {"background-color": "#2C3845"},
-        }
-    )
-    if selected == "Home":
-        showmainpage()
+# def navbar():
+#     selected = option_menu(
+#         menu_title=None,
+#         options=['Home', 'Database', 'Dashboard'],
+#         icons=['house', 'wallet2', 'bar-chart'],
+#         menu_icon="cast",
+#         default_index=0,
+#         orientation="horizontal",
+#         styles={
+#             "container": {"padding": "5!important", "background-color": "black", "width": "50%"},
+#             "icon": {"color": "red", "font-size": "25px"},
+#             "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+#             "nav-link-selected": {"background-color": "#2C3845"},
+#         }
+#     )
+#     if selected == "Home":
+#         showmainpage()
 
-    elif selected == "Database":
-        show_database()
+#     elif selected == "Database":
+#         show_database()
 
-    else:
-        show_dashboard()
+#     else:
+#         show_dashboard()
 
 
 def show_dashboard():
