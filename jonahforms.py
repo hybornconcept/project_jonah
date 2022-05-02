@@ -1,17 +1,41 @@
+
+
 import streamlit as st
 import sqlite3
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import time
+from streamlit_option_menu import option_menu
 
+st.set_page_config(layout="wide", initial_sidebar_state="collapsed")
 
-st.set_page_config(layout="wide")
+st.markdown(
+    """
+    <style>
+    .main(
+primaryColor : '#E84C29'
+Background-color:'#273346'
+font-color: '#FFFFFF'
+font-family:"sans serif"
+    )
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# with open("style.css") as f:
+#     st.markdown('<style>{f.read()}<style>', unsafe_allow_html=True)
 conn = sqlite3.connect('data.db', check_same_thread=False)
 cur = conn.cursor()
-
+bigcollector = []
+collector = []
 entrysection = st.container()
 mainsection = st.container()
 loginsection = st.container()
-collector = []
-facilityoptions = ["SelecttheFacility",
+
+
+facilityoptions = ["Select the Facility",
                    "Akamkpa General Hospital",
                    "Calabar General Hospital",
                    "Ugep General Hospital",
@@ -20,18 +44,18 @@ facilityoptions = ["SelecttheFacility",
                    "Calabar Municipal Youth Resource Center",
                    "Youth Hub Unical"]
 
-LGAoptions = ["SelecttheLGA",
+LGAoptions = ["Select the LGA",
               "Calabar",
               "Akamkpa",
               "Yakurr",
               "Obanliku"
               ]
-stateoptions = ["SelecttheState",
+stateoptions = ["Select the State",
                 "Cross river",
                 "Akwa ibom",
                 ]
 
-Monthoptions = ["SelecttheMonth",
+Monthoptions = ["Select the Month",
                 "January 2022",
                 "February 2022",
                 "March 2022",
@@ -84,20 +108,36 @@ body = {
                "Number of Clients referred",
                ]
 }
-# keysList = [key for key in body]
+keysList = [key for key in body]
 # # print(keysList[1])
 # questions = [body[i] for i in body]
 # # print(questions[1][1])
+if 'header' not in st.session_state:
+    st.session_state['header'] = False
 
 
 def authen(username, password):
+    users = ['admin', 'CRSO', 'Bedet', 'Orose', 'Nchigbu',
+             'Ionyekuru', 'Aapinega', 'Cthompson']
+    passwods = ['admin', 'admin1', 'admin2', 'admin3',
+                'admin4', 'admin5', 'admin6' 'admin7']
+
     col1, col2, col3 = st.columns(3)
     with col2:
-        if username == "admin" and password == "admin":
-            st.session_state['loggedin'] = True
-        else:
+        try:
+            users.index(username) == passwods.index(password)
+
+        except ValueError:
             st.session_state['loggedin'] = False
             st.error('Invalid Username or Password')
+
+        else:
+            st.session_state['loggedin'] = True
+            if username == 'admin' and password == 'admin':
+                st.session_state['header'] = True
+
+            else:
+                st.session_state['header'] = False
 
 
 def showLogin():
@@ -108,18 +148,19 @@ def showLogin():
             st.write("## ASRH Monthly Data Collector")
             username = st.text_input("Enter your Username")
             password = st.text_input("Enter your Password", type="password")
+
             st.button("Login", on_click=authen, args=(username, password))
 
 
-def spacer(number):
+def spacer(order, number):
     for i in range(number):
-        st.markdown(
+        order.markdown(
             '<br/>', unsafe_allow_html=True)
 
 
-def liner(number):
+def liner(order, number):
     for i in range(number):
-        st.markdown(
+        order.markdown(
             '<hr/>', unsafe_allow_html=True)
 
 
@@ -145,18 +186,21 @@ def spiller(title, questions):
                 e += index*10
                 keys = j + str(e)
                 if e == 1 or e % 10 == 1:
-                    if len(j) < 20:
-                        col.markdown(
-                            '<br/>', unsafe_allow_html=True)
-                        col.markdown(
-                            '<h6 class="small-font style="margin-top: 25%;">{questions}</h6>'.format(questions=j), unsafe_allow_html=True)
-                        col.markdown(
-                            '<hr/>', unsafe_allow_html=True)
 
+                    if (title in keysList[2:6] or title in keysList[0]):
+
+                        col.markdown(
+                            '<h6 class="small-font" style=" margin-top:25%;  ">{questions}</h6>'.format(questions=j), unsafe_allow_html=True)
+                        spacer(col, 2)
+                    elif (title == keysList[1]):
+                        col.markdown(
+                            '<h6 class="small-font" style=" margin-top:25%;  ">{questions}</h6>'.format(questions=j), unsafe_allow_html=True)
+
+                        spacer(col, 3)
                     else:
                         col.markdown(
-                            '<h6 class="small-font">{questions}</h6>'.format(questions=j), unsafe_allow_html=True)
-
+                            '<h6 class="small-font" style=" margin-top:26%;  ">{questions}</h6>'.format(questions=j), unsafe_allow_html=True)
+                        # liner(col, 1)
                 elif e % 10 == 0:
 
                     if questions.index(j) == count:
@@ -165,25 +209,25 @@ def spiller(title, questions):
                         if submitted1 == False:
 
                             col.write(
-                                '<h5 class="small-font" style="margin-left: 2.5%;">{fname}</h5>'.format(fname=0), unsafe_allow_html=True)
+                                '<h5 class="vertical-center small-font" style="margin-left: 2.5%;">{fname}</h5>'.format(fname=0), unsafe_allow_html=True)
                         else:
                             hh = [sum(collector[i:i+len(questions)+1])
                                   for i in range(0, len(collector), len(questions)+1)]
                             col.write(
-                                '<h5 class="small-font" style="margin-left: 2.5%;">{fname}</h5>'.format(fname=hh[questions.index(j)]), unsafe_allow_html=True)
+                                '<h5 class=" vertical-center small-font" style="margin-left: 2.5%;">{fname}</h5>'.format(fname=hh[questions.index(j)]), unsafe_allow_html=True)
 
                     else:
                         continue
 
                 else:
                     x = col.number_input(i, min_value=0, key=keys)
-                    collector.append(str(int(x)))
-                    col.markdown(
-                        '<hr/>', unsafe_allow_html=True)
-            col.markdown(
-                '<hr/>', unsafe_allow_html=True)
-
+                    collector.append(x)
+                    liner(col, 1)
+            liner(col, 1)
             count += 1
+
+
+columns = []
 
 
 def addData(holder):
@@ -215,26 +259,26 @@ def addData(holder):
 
     mark = []
     newquery = ""
-
-    for v in collector[:4]:
-        if v == collector[0]:
+    newcollector = [str(int(i)) for i in collector]
+    bigcollector.extend(newcollector)
+    for v in bigcollector[:4]:
+        if v == bigcollector[0]:
             mark += "\"%s\"" % v
         else:
             mark += " , "
             mark += "\"%s\"" % v
 
-    for v in collector[4:]:
-        if v == collector[0]:
+    for v in bigcollector[4:]:
+        if v == bigcollector[0]:
             mark += v
 
         else:
             mark += " , "
             mark += v
-            # header_columns_commands += "\"%s\"" % h
+
     newquery += "insert into ASRHMSF  values ( "
     newquery += "".join(mark)
     newquery += " );"
-    st.write(newquery)
     try:
 
         cur.execute(query)
@@ -251,41 +295,56 @@ def addData(holder):
             conn.close()
 
 
-def retrieve():
+def show_database():
+    st.markdown("### ASRHMSF Monthly Reported data")
 
-    try:
-        cur.execute("Select * from ASRHMSF")
-        data = cur.fetchall
-        return data
-    # cur.execute(bad)
+    cnx = sqlite3.connect('data.db')
 
-    except sqlite3.Error as error:
-        st.write("Failed to retrive data into sqlite table", error)
-    finally:
-        if conn:
-            st.success("succesfully inserted")
-            st.success("The SQLite connection is closed")
+    clean_df = pd.read_sql_query("SELECT * FROM ASRHMSF", cnx)
+
+    st.dataframe(clean_df)
+
+
+def navbar():
+    selected = option_menu(
+        menu_title=None,
+        options=['Home', 'Database', 'Dashboard'],
+        icons=['house', 'wallet2', 'bar-chart'],
+        menu_icon="cast",
+        default_index=0,
+        orientation="horizontal",
+        styles={
+            "container": {"padding": "5!important", "background-color": "black", "width": "50%"},
+            "icon": {"color": "red", "font-size": "25px"},
+            "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+            "nav-link-selected": {"background-color": "#2C3845"},
+        }
+    )
+    if selected == "Home":
+        showmainpage()
+
+    elif selected == "Database":
+        show_database()
+
+    else:
+        show_dashboard()
+
+
+def show_dashboard():
+    st.write("Hello World")
 
 
 def showmainpage():
 
     with mainsection:
+
         st.header("ASRH Monthly Data Collector")
         st.write(
             "Adolescents And Young People Reproductive Health Services Monthly Data Summary Form")
-        liner(1)
+        liner(st, 1)
 
         with st.form(key='columns_in_form'):
             kol1, kol2, kol3, kol4 = st.columns(4)
-            kole1, kole2, kole3, kole4 = st.columns(4)
-            with kole2:
-                getter = st.form_submit_button('retrieve')
-
-                if getter:
-                    st.write(collector)
-                    result = retrieve()
-                    clean_df = pd.DataFrame(result, columns=[collector])
-                    st.dataframe(clean_df)
 
             with kol1:
                 facility = st.selectbox(
@@ -304,14 +363,14 @@ def showmainpage():
                     'Reporting Month',
                     Monthoptions)
 
-            liner(1)
-            spacer(3)
-            collector.append(facility)
-            collector.append(LGA)
-            collector.append(state)
-            collector.append(month)
+            liner(st, 1)
+            spacer(st, 3)
+            bigcollector.append(facility)
+            bigcollector.append(LGA)
+            bigcollector.append(state)
+            bigcollector.append(month)
             st.markdown("### ASRH Monthly Summary Form (MSF)")
-            spacer(1)
+            spacer(st, 1)
 
             for key, value in body.items():
                 spiller(key, value)
@@ -328,6 +387,10 @@ with entrysection:
         showLogin()
     else:
         if st.session_state['loggedin']:
-            showmainpage()
+            with st.spinner("Loading..."):
+                time.sleep(1)
+                if st.session_state['header'] == True:
+                    navbar()
+
         else:
             showLogin()
